@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Contact</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    />
+  </head>
+  <body class="add">
+    <form id="editForm">
+      <h2>Add New Contact</h2>
+      <br />
+      <label for="name">Firstname</label>
+      <input
+        type="text"
+        id="firstname"
+        name="firstname"
+        placeholder="Firstname"
+        required
+      />
+      <br />
+      <label for="surname">Surname</label>
+      <input
+        type="text"
+        id="lastname"
+        name="lastname"
+        placeholder="Surname"
+        required
+      />
+
+      <br />
+       <label for="mobile">Mobile</label>
+      <input type="text" name="mobile" id="mobile" placeholder="Mobile Number" required />
+      <br />
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="Email Address"
+        required
+      />
+      <br />
+      <label for="avatar">Avatar</label>
+      <input
+        type="file"
+        accept="image/*"
+        name="avatar"
+        id="avatar"
+        title="Upload avatar"
+      />
+      <br />
+      <div class="contact-buttons">
+        <button type="submit" id="submitForm" title="Add Contact">
+          <span class="material-symbols-outlined">person_add</span>
+        </button>
+        <button type="button" id="cancelButton" title="Home">
+          <span class="material-symbols-outlined">home</span>
+        </button>
+      </div>
+    </form>
+
+    <script src="config.js"></script>
+
+    <script>
+      if (typeof rootPath === "undefined") {
+        console.error("rootPath is not defined. Please check config.js.");
+      }
+    </script>
+
+    <script>
+      function submitForm(e) {
+        e.preventDefault();
+
+        if (typeof apiKey === "undefined") {
+          alert("apiKey is not defined. Please check config.js.");
+          return;
+        }
+
+        const form = new FormData(document.querySelector("#editForm"));
+        form.append("apiKey", apiKey);
+
+        fetch(rootPath + "controller/insert-contact/", {
+          method: "POST",
+          headers: {
+            Accept: "application/json,*.*",
+          },
+          body: form,
+        })
+          .then(function (response) {
+            return response.text();
+          })
+          .then(function (data) {
+            if (data === "1") {
+              alert("Contact added successfully!");
+              window.location.href = "index.html";
+            } else {
+              alert("Error adding contact: " + data);
+            }
+          });
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("#editForm");
+        if (form) {
+          form.addEventListener("submit", submitForm);
+        }
+
+        const cancelBtn = document.getElementById("cancelButton");
+        if (cancelBtn) {
+          cancelBtn.addEventListener("click", function () {
+            window.open("index.html", "_self");
+          });
+        }
+
+        document.getElementById("refresh").addEventListener('click', fetchContacts);
+        document.getElementById("addContact").addEventListener('click', addContact);
+      });
+    </script>
+  </body>
+</html>

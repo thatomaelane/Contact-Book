@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Book</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+    />
+  </head>
+  <body onload="fetchContacts()">
+    <nav>
+      <div class="logo">
+        <span class="material-symbols-outlined">contacts</span>
+        <h1>Contact Book</h1>
+      </div>
+
+      <div class="buttons">
+        <span class="material-symbols-outlined" onclick="fetchContacts()"
+          >refresh</span
+        >
+        <span class="material-symbols-outlined" onclick="addContact()"
+          >person_add</span
+        >
+      </div>
+    </nav>
+
+    <section>
+      <input
+        type="search"
+        id="search"
+        placeholder="Search Contacts"
+      />
+      <div id="table">
+        <p id="loading-text">Contacts Loading...</p>
+      </div>
+    </section>
+
+    <script src="config.js"></script>
+    <script>
+      document
+        .getElementById("refresh")
+        .addEventListener("click", fetchContacts);
+      document
+        .getElementById("addContact")
+        .addEventListener("click", addContact);
+
+        document.getElementById("search").addEventListener("input", search);
+
+      function fetchContacts() {
+        fetch(rootPath + "controller/get-contacts/")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            displayOutput(data);
+          });
+      }
+
+      function displayOutput(contactArray) {
+        let output = "<table class='table'>";
+        for (let a in contactArray) {
+         
+          if (
+            (!contactArray[a].firstname || contactArray[a].firstname.trim() === "") &&
+            (!contactArray[a].lastname || contactArray[a].lastname.trim() === "")
+          ) {
+            continue;
+          }
+          output += `
+      <tr onclick="editContact(${contactArray[a].id})">
+        <td><img src="${rootPath}controller/uploads/${contactArray[a].avatar}" width="40" height="40"/></td>
+        <td><h4 style="margin-top: 9px">${contactArray[a].firstname}</h4></td>
+        <td><h4 style="margin-top: 9px">${contactArray[a].lastname}</h4></td>
+        <td hidden ><h4 style="margin-top: 9px">${contactArray[a].mobile}</h4></td>
+      </tr>
+    `;
+        }
+        output += "</table>";
+        document.getElementById("table").innerHTML = output;
+      }
+
+      function editContact(id) {
+        window.open("edit-contact.html?id=" + id, "_self");
+      }
+
+      function addContact() {
+        window.open("insert-contact.html?", "_self");
+      }
+
+      function search() {
+        const searchValue = document.getElementById("search").value.toLowerCase();
+        const rows = document.querySelectorAll(".table tr");
+        rows.forEach((row) => {
+          const firstNameCell = row.querySelector("td:nth-child(2) h4");
+          const lastNameCell = row.querySelector("td:nth-child(3) h4");
+          if (!firstNameCell || !lastNameCell) {
+            row.style.display = "none";
+            return;
+          }
+          const fullName = (firstNameCell.textContent + " " + lastNameCell.textContent).toLowerCase();
+          row.style.display = fullName.includes(searchValue) ? "" : "none";
+        });
+      }
+    </script>
+  </body>
+</html>
